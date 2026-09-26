@@ -1,10 +1,11 @@
 import from services.biteloop {
-    get_feed, get_restaurants, get_restaurant, claim_reward, get_wallet, redeem_claim,
+    get_feed, get_restaurants, get_map_center, get_restaurant, claim_reward, get_wallet, redeem_claim,
     get_missions, get_profile, save_preferences, get_dashboard, create_reward, flash_drop, get_checkin, scan_claim, rotate_checkin, get_reward, CheckinView,
     Restaurant, Reward, Claim, Mission, UserProfile, RewardView, RestaurantView,
     RestaurantDetail, FeedView, ClaimView, MissionView, ProfileView, DashboardView, ActionResult
 }
 
+import "leaflet/dist/leaflet.css";
 import ".styles.global.css";
 import from "@jac/runtime" { Router, Routes, Route, Navigate, AuthGuard }
 import from .components.LoginPage { LoginPage }
@@ -23,9 +24,9 @@ import from .components.StoreDisplay { StoreDisplay }
 import from .components.ClaimVerify { ClaimVerify }
 
 def:pub AppFrame(children: any = None) -> JsxElement {
-    return <div className="min-h-svh bg-background">
+    return <div className="min-h-svh overflow-x-clip bg-background">
         <BottomNav />
-        <main className="md:pl-60">
+        <main className="min-w-0 md:pl-60">
             <div className="mx-auto w-full max-w-6xl pt-5 pb-28 pl-4 pr-4 sm:pl-6 sm:pr-6 md:pt-8 md:pb-12 lg:pl-10 lg:pr-10">
                 {children}
             </div>

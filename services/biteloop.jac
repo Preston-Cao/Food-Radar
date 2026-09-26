@@ -162,6 +162,8 @@ obj RestaurantView {
         distance: float,
         map_x: float,
         map_y: float,
+        lat: float,
+        lng: float,
         active_rewards: int,
         has_flash: bool,
         reward_titles: list[str],
@@ -278,6 +280,7 @@ obj ActionResult {
 
 def:pub get_feed(location: str = "", radius: float = 0.0) -> FeedView;
 def:pub get_restaurants(location: str = "") -> list[RestaurantView];
+def:pub get_map_center() -> list[float];
 def:pub get_restaurant(rid: str) -> RestaurantDetail | None;
 def:pub claim_reward(reward_id: str, code: str) -> ActionResult;
 def:pub get_reward(reward_id: str) -> RewardView | None;

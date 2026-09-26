@@ -8,7 +8,8 @@ import from .ui.button { Button }
 import from .ui.badge { Badge }
 import from .ui.skeleton { Skeleton }
 import from .ui.empty { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent }
-sv import from ..services.biteloop { get_restaurants, RestaurantView }
+import from .RestaurantMap { RestaurantPinMap }
+sv import from ..services.biteloop { get_restaurants, get_map_center, RestaurantView }
 
 glob FILTERS: list[str] = [
     "All", "Free food", "Free drinks", "Under $10", "Flash Drops", "Cafes", "Restaurants",
@@ -35,7 +36,7 @@ def _matches(r: RestaurantView, f: str, q: str) -> bool {
 }
 
 def:pub PinSheet(place: RestaurantView, onView: Callable[[str], None], onClose: Callable[[], None]) -> JsxElement {
-    return <div className="absolute inset-x-3 bottom-3 flex items-center gap-3 rounded-2xl bg-card pt-3 pb-3 pl-3 pr-3 shadow-xl animate-in slide-in-from-bottom-4 duration-300">
+    return <div className="absolute inset-x-3 bottom-3 z-[1000] flex items-center gap-3 rounded-2xl bg-card pt-3 pb-3 pl-3 pr-3 shadow-xl animate-in slide-in-from-bottom-4 duration-300">
         <img src={place.cover_image} alt={place.name} className="size-16 shrink-0 rounded-xl object-cover" />
         <div className="min-w-0 flex-1">
             <p className="truncate font-bold">{place.name}</p>
@@ -55,7 +56,8 @@ def:pub ExploreMap() -> JsxElement {
         error: str = "",
         query: str = "",
         filter: str = "All",
-        selected: str = "";
+        selected: str = "",
+        center: list[float] = [40.742, -73.989];
 
     navigate = useNavigate();
 
@@ -63,6 +65,7 @@ def:pub ExploreMap() -> JsxElement {
         error = "";
         try {
             places = await get_restaurants("");
+            center = await get_map_center();
         } except Exception as e {
             error = "Could not load the map. " + str(e);
         }
@@ -97,25 +100,14 @@ def:pub ExploreMap() -> JsxElement {
         {loading and <Skeleton className="h-[26rem] w-full rounded-3xl" />}
         {error and <p className="text-sm text-destructive">{error}</p>}
 
-        {not loading and <div className="grid gap-5 lg:grid-cols-5">
-            <div className="relative h-[24rem] overflow-hidden rounded-3xl border bg-[#efe8da] shadow-sm lg:col-span-3 lg:h-[34rem]">
-                <div className="absolute inset-0 opacity-60" style={{"backgroundImage": "linear-gradient(#fff 2px, transparent 2px), linear-gradient(90deg, #fff 2px, transparent 2px)", "backgroundSize": "56px 56px"}} />
-                <div className="absolute -left-10 top-[58%] h-10 w-[130%] -rotate-12 bg-sky-200/80" />
-                <div className="absolute left-[12%] top-[10%] size-28 rounded-full bg-emerald-200/70 blur-sm" />
-                <div className="absolute bottom-[8%] right-[10%] h-24 w-40 rounded-3xl bg-emerald-200/60" />
-                <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center">
-                    <span className="size-24 rounded-full bg-sky-400/15 ring-1 ring-sky-400/30" />
-                    <span className="absolute top-1/2 size-4 -translate-y-1/2 rounded-full border-2 border-white bg-sky-500 shadow" />
+        {not loading and <div className="grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-5">
+            <div className="relative isolate h-[26rem] overflow-hidden rounded-3xl border bg-muted shadow-sm lg:col-span-3 lg:h-[34rem]">
+                <RestaurantPinMap places={shown} center={center} selected={selected} onSelect={lambda (rid: str) { selected = rid; }} />
+                <div className="pointer-events-none absolute right-3 top-3 z-[1000] flex flex-wrap justify-end gap-1.5 text-[11px] font-semibold">
+                    <span className="rounded-full bg-card/95 pt-1 pb-1 pl-2.5 pr-2.5 shadow-sm">{str(len(shown)) + " spots"}</span>
+                    <span className="rounded-full bg-yellow-400 pt-1 pb-1 pl-2.5 pr-2.5 text-charcoal shadow-sm">{"Flash Drop"}</span>
+                    <span className="rounded-full bg-sky-500/90 pt-1 pb-1 pl-2.5 pr-2.5 text-white shadow-sm">{"Your area (approx.)"}</span>
                 </div>
-                {for r in shown {
-                    <button key={r.id} onClick={lambda { selected = r.id; }} className="absolute -translate-x-1/2 -translate-y-full transition-transform hover:scale-110" style={{"left": str(r.map_x) + "%", "top": str(r.map_y) + "%"}}>
-                        <span className={"flex items-center gap-1 rounded-full pt-1 pb-1 pl-1 pr-2.5 text-xs font-bold shadow-lg ring-2 ring-white " + ("bg-yellow-400 text-charcoal" if r.has_flash else ("bg-charcoal text-white" if r.id == selected else "bg-primary text-primary-foreground"))}>
-                            <img src={r.logo} alt="" className="size-6 rounded-full object-cover" />
-                            {r.has_flash and <HugeiconsIcon icon={FlashIcon} strokeWidth={2.5} className="size-3" />}
-                            {str(r.active_rewards)}
-                        </span>
-                    </button>
-                }}
                 {len(picked) > 0 and <PinSheet place={picked[0]} onView={lambda (rid: str) { navigate("/restaurant/" + rid); }} onClose={lambda { selected = ""; }} />}
             </div>
 

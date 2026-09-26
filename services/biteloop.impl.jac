@@ -252,6 +252,7 @@ def _rest_view(r: Restaurant, center: list[float], live: list[RewardView]) -> Re
         logo=r.logo, cover_image=r.cover_image, tags=r.tags, price_level=r.price_level,
         rating=r.rating, distance=_miles(center[0], center[1], r.lat, r.lng),
         map_x=max(6.0, min(94.0, x)), map_y=max(8.0, min(92.0, y)),
+        lat=r.lat, lng=r.lng,
         active_rewards=len(mine), has_flash=len([v for v in mine if v.kind == "flash"]) > 0,
         reward_titles=[v.title for v in mine], verified=r.verified, sample=r.sample
     );
@@ -309,6 +310,13 @@ impl get_restaurants(location: str = "") -> list[RestaurantView] {
     views = [_rest_view(r, center, live) for r in _restaurants()];
     views.sort(key=lambda (v: RestaurantView) -> float { return v.distance; });
     return views;
+}
+
+"""Center of the user's chosen area, rounded: an approximate neighborhood, never a precise position."""
+impl get_map_center() -> list[float] {
+    p = _ensure();
+    c = _center(p.location);
+    return [round(c[0], 3), round(c[1], 3)];
 }
 
 impl get_restaurant(rid: str) -> RestaurantDetail | None {
