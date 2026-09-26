@@ -18,6 +18,7 @@ import from .components.WalletScreen { WalletScreen }
 import from .components.ProfileScreen { ProfileScreen }
 import from .components.BusinessDashboard { BusinessDashboard }
 import from .components.ScanClaim { ScanClaim }
+import from .components.StoreDisplay { StoreDisplay }
 
 def:pub AppFrame(children: any = None) -> JsxElement {
     return <div className="min-h-svh bg-background">
@@ -42,6 +43,7 @@ def:pub app() -> JsxElement {
             <Route path="/wallet" element={<AppFrame><WalletScreen /></AppFrame>} />
             <Route path="/profile" element={<AppFrame><ProfileScreen /></AppFrame>} />
             <Route path="/business" element={<AppFrame><BusinessDashboard /></AppFrame>} />
+            <Route path="/business/display" element={<StoreDisplay />} />
             <Route path="/scan/:rid/:token" element={<AppFrame><ScanClaim /></AppFrame>} />
             <Route path="*" element={<Navigate to="/" replace={True} />} />
         </Routes>

@@ -36,6 +36,7 @@ def:pub StoreQrCard(rid: str, name: str, token: str, onRotate: Callable[[], None
                 <Button className="flex-1" onClick={lambda { window.print(); }}>{"Print poster"}</Button>
                 <a href={url} target="_blank" rel="noreferrer" className="flex-1"><Button variant="outline" className="w-full">{"Test scan link"}</Button></a>
             </div>
+            <Link to="/business/display" className="w-full"><Button variant="secondary" className="w-full"><HugeiconsIcon icon={QrCode01Icon} strokeWidth={2} />{"Open display mode"}</Button></Link>
             <Button variant="ghost" size="sm" className="text-muted-foreground" disabled={rotating} onClick={lambda { onRotate(); }}>{"Issuing new code..." if rotating else "Refresh code (cancels old posters)"}</Button>
         </CardContent>
     </Card>;
