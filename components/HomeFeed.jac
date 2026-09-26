@@ -11,7 +11,7 @@ import from .ui.avatar { Avatar, AvatarFallback }
 import from .ui.empty { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent }
 import from .RewardCard { RewardCard, KindPill, time_left, money }
 import from .BottomNav { BrandMark }
-sv import from ..services.biteloop { get_feed, claim_reward, FeedView, RewardView }
+sv import from ..services.biteloop { get_feed, FeedView, RewardView }
 
 glob RADII: list[float] = [0.5, 1.0, 2.0, 5.0, 10.0];
 glob AREAS: list[str] = ["Downtown", "Riverside", "Old Mill", "Harbor District"];
@@ -40,19 +40,8 @@ def:pub HomeFeed() -> JsxElement {
         loading = False;
     }
 
-    async def claim(rid: str) -> None {
-        claimingId = rid;
-        res = await claim_reward(rid);
-        if res.ok {
-            toast.success(res.message);
-            if navigator.vibrate {
-                navigator.vibrate(30);
-            }
-        } else {
-            toast.error(res.message);
-        }
-        claimingId = "";
-        await load("", 0.0);
+    def claim(rid: str) {
+        navigate("/verify/" + rid);
     }
 
     can with entry {

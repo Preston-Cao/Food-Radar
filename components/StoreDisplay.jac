@@ -50,6 +50,10 @@ def:pub DisplayBody(dash: DashboardView) -> JsxElement {
                     <QRCodeSVG value={url} size={320} level="M" fgColor="#1f1a17" className="size-64 sm:size-80 lg:size-[22rem]" />
                 </div>
             </div>
+            <div className="flex flex-col items-center gap-1">
+                <span className="text-sm font-bold uppercase tracking-widest text-muted-foreground">{"Or enter store code"}</span>
+                <span className="rounded-2xl bg-charcoal pt-2 pb-2 pl-6 pr-6 font-mono text-4xl font-extrabold tracking-[0.35em] text-white md:text-5xl">{dash.store_code}</span>
+            </div>
             <div className="grid w-full max-w-3xl gap-3 sm:grid-cols-3">
                 {for s in STEPS {
                     <div key={s["n"]} className="flex flex-col items-center gap-2 rounded-2xl bg-card pt-4 pb-4 pl-4 pr-4 shadow-sm ring-1 ring-border">

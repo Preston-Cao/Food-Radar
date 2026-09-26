@@ -1,4 +1,4 @@
-import from "@jac/runtime" { Link, useParams }
+import from "@jac/runtime" { Link, useParams, useNavigate }
 import from "sonner" { toast }
 import from "@hugeicons/react" { HugeiconsIcon }
 import from "@hugeicons/core-free-icons" {
@@ -11,7 +11,7 @@ import from .ui.skeleton { Skeleton }
 import from .ui.card { Card, CardHeader, CardTitle, CardContent }
 import from .ui.empty { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription }
 import from .RewardCard { RewardCard }
-sv import from ..services.biteloop { get_restaurant, claim_reward, RestaurantDetail }
+sv import from ..services.biteloop { get_restaurant, RestaurantDetail }
 
 def:pub RestaurantProfile() -> JsxElement {
     has detail: RestaurantDetail | None = None,
@@ -36,16 +36,10 @@ def:pub RestaurantProfile() -> JsxElement {
         loading = False;
     }
 
-    async def claim(rewardId: str) -> None {
-        claimingId = rewardId;
-        res = await claim_reward(rewardId);
-        if res.ok {
-            toast.success(res.message);
-        } else {
-            toast.error(res.message);
-        }
-        claimingId = "";
-        await load();
+    navigate = useNavigate();
+
+    def claim(rewardId: str) {
+        navigate("/verify/" + rewardId);
     }
 
     can with [rid] entry {

@@ -335,7 +335,56 @@ impl get_restaurant(rid: str) -> RestaurantDetail | None {
     );
 }
 
-impl claim_reward(reward_id: str) -> ActionResult {
+"""Claims are only granted with proof of presence: the store's code or its QR token."""
+impl claim_reward(reward_id: str, code: str) -> ActionResult {
+    _ensure();
+    target = jobj(reward_id);
+    if not isinstance(target, Reward) {
+        return ActionResult(ok=False, message="This reward no longer exists.");
+    }
+    r = _rest_by_id((target as Reward).restaurant_id);
+    if r is None {
+        return ActionResult(ok=False, message="This restaurant is not participating right now.");
+    }
+    entered = code.strip();
+    if "/scan/" in entered {
+        entered = entered.rstrip("/").split("/")[-1];
+    }
+    if not entered {
+        return ActionResult(ok=False, message="Scan the store's QR code or enter the code staff give you.");
+    }
+    if entered.upper() != _store_code(r) and entered != _token(r) {
+        return ActionResult(ok=False, message="That code doesn't match " + r.name + ". Ask staff for the current BiteLoop code.");
+    }
+    res = _do_claim(reward_id);
+    if res.ok {
+        res.message = "Verified at " + r.name + ". Reward claimed and added to your wallet.";
+    }
+    return res;
+}
+
+def _store_code(r: Restaurant) -> str {
+    if not r.store_code {
+        r.store_code = _code(6);
+    }
+    return r.store_code;
+}
+
+impl get_reward(reward_id: str) -> RewardView | None {
+    p = _ensure();
+    target = jobj(reward_id);
+    if not isinstance(target, Reward) {
+        return None;
+    }
+    rw = target as Reward;
+    r = _rest_by_id(rw.restaurant_id);
+    if r is None {
+        return None;
+    }
+    return _reward_view(rw, r, _center(p.location), _claimed_ids());
+}
+
+def _do_claim(reward_id: str) -> ActionResult {
     p = _ensure();
     now = _now();
     target = jobj(reward_id);
@@ -577,7 +626,7 @@ impl get_dashboard() -> DashboardView {
         redemptions=total_redeem, new_customers=int(total_redeem * 0.62),
         returning_customers=total_redeem - int(total_redeem * 0.62),
         acquisition_cost=3.1, revenue=round(total_redeem * 11.4, 2),
-        checkin_token=(_token(r) if r else ""), rewards=mine
+        checkin_token=(_token(r) if r else ""), store_code=(_store_code(r) if r else ""), rewards=mine
     );
 }
 
@@ -633,7 +682,8 @@ impl rotate_checkin(rid: str) -> ActionResult {
         return ActionResult(ok=False, message="Restaurant not found.");
     }
     r.checkin_token = _code(16);
-    return ActionResult(ok=True, message="New QR code issued. Old posters no longer work, so print the new one.");
+    r.store_code = _code(6);
+    return ActionResult(ok=True, message="New QR code and store code issued. Old posters no longer work, so print the new one.");
 }
 
 impl scan_claim(reward_id: str, rid: str, token: str) -> ActionResult {
@@ -645,7 +695,7 @@ impl scan_claim(reward_id: str, rid: str, token: str) -> ActionResult {
     if not isinstance(target, Reward) or (target as Reward).restaurant_id != rid {
         return ActionResult(ok=False, message="This reward is not available at this location.");
     }
-    res = claim_reward(reward_id);
+    res = _do_claim(reward_id);
     if res.ok {
         res.message = "Checked in and claimed. Show the code from your wallet at the counter.";
     }

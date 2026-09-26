@@ -88,7 +88,7 @@ def:pub PhotoUpload(image: str, onChange: Callable[[str], None]) -> JsxElement {
 }
 
 """Printable in-store QR poster. Scanning it opens /scan/<rid>/<token>, which proves presence."""
-def:pub StoreQrCard(rid: str, name: str, token: str, onRotate: Callable[[], None], rotating: bool = False) -> JsxElement {
+def:pub StoreQrCard(rid: str, name: str, token: str, storeCode: str, onRotate: Callable[[], None], rotating: bool = False) -> JsxElement {
     url = window.location.origin + "/scan/" + rid + "/" + token;
     return <Card className="shadow-sm print:shadow-none">
         <CardHeader>
@@ -103,6 +103,10 @@ def:pub StoreQrCard(rid: str, name: str, token: str, onRotate: Callable[[], None
                     <QRCodeSVG value={url} size={180} level="M" fgColor="#1f1a17" />
                 </div>
                 <p className="text-xs text-primary-foreground/85">{"Open your camera and point it at the code"}</p>
+                <div className="flex flex-col items-center gap-1 rounded-2xl bg-white/15 pt-2 pb-2 pl-5 pr-5">
+                    <span className="text-[10px] font-bold uppercase tracking-widest">{"Or enter store code"}</span>
+                    <span className="font-mono text-3xl font-extrabold tracking-[0.3em]">{storeCode}</span>
+                </div>
             </div>
             <div className="flex w-full flex-wrap gap-2">
                 <Button className="flex-1" onClick={lambda { window.print(); }}>{"Print poster"}</Button>
@@ -251,7 +255,7 @@ def:pub BusinessDashboard() -> JsxElement {
             </Card>
 
             <div className="flex flex-col gap-6 lg:col-span-2">
-                {dash and dash.checkin_token and <StoreQrCard rid={dash.restaurant_id} name={dash.restaurant_name} token={dash.checkin_token} onRotate={rotate} rotating={rotating} />}
+                {dash and dash.checkin_token and <StoreQrCard rid={dash.restaurant_id} name={dash.restaurant_name} token={dash.checkin_token} storeCode={dash.store_code} onRotate={rotate} rotating={rotating} />}
                 <Card className="border-2 border-yellow-400/70 shadow-sm">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2"><HugeiconsIcon icon={FlashIcon} strokeWidth={2} className="size-5 text-yellow-500" />{"Flash Drop"}</CardTitle>

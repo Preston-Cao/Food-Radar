@@ -35,6 +35,7 @@ node Restaurant {
         sample: bool = True,
         owner_id: str = "",
         checkin_token: str = "",
+        store_code: str = "",
         created_at: float = 0.0;
 }
 
@@ -254,6 +255,7 @@ obj DashboardView {
         acquisition_cost: float,
         revenue: float,
         checkin_token: str,
+        store_code: str,
         rewards: list[RewardView];
 }
 
@@ -277,7 +279,8 @@ obj ActionResult {
 def:pub get_feed(location: str = "", radius: float = 0.0) -> FeedView;
 def:pub get_restaurants(location: str = "") -> list[RestaurantView];
 def:pub get_restaurant(rid: str) -> RestaurantDetail | None;
-def:pub claim_reward(reward_id: str) -> ActionResult;
+def:pub claim_reward(reward_id: str, code: str) -> ActionResult;
+def:pub get_reward(reward_id: str) -> RewardView | None;
 def:pub get_wallet() -> list[ClaimView];
 def:pub redeem_claim(claim_id: str, code: str) -> ActionResult;
 def:pub get_missions() -> list[MissionView];
