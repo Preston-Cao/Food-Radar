@@ -676,7 +676,17 @@ impl create_reward(
         return ActionResult(ok=False, message="Availability must be between 1 and 72 hours.");
     }
     now = _now();
-    pic = image.strip() or _img("photo-1555507036-ab1f4038808a");
+    pic: str = image.strip();
+    if pic.startswith("data:") and not pic.startswith("data:image/") {
+        return ActionResult(ok=False, message="The photo must be an image file.");
+    }
+    if len(pic) > 3000000 {
+        return ActionResult(ok=False, message="That photo is too large. Try a smaller image.");
+    }
+    if pic and not (pic.startswith("data:image/") or pic.startswith("https://")) {
+        return ActionResult(ok=False, message="Upload a photo or use an https image link.");
+    }
+    pic = pic or _img("photo-1555507036-ab1f4038808a");
     rw = Reward(
         restaurant_id="ember", title=t, description=description.strip(),
         reward_type=reward_type or "free_food", kind="standard", quantity=quantity,

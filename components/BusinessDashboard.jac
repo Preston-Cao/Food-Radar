@@ -3,7 +3,7 @@ import from "sonner" { toast }
 import from "@hugeicons/react" { HugeiconsIcon }
 import from "@hugeicons/core-free-icons" {
     ArrowLeft01Icon, CheckmarkBadge01Icon, Ticket01Icon, Analytics01Icon, QrCode01Icon,
-    UserGroupIcon, UserIcon, DollarCircleIcon, FlashIcon, ChartHistogramIcon, PlusSignIcon
+    UserGroupIcon, UserIcon, DollarCircleIcon, FlashIcon, ChartHistogramIcon, PlusSignIcon, Upload01Icon
 }
 import from .ui.button { Button }
 import from .ui.input { Input }
@@ -14,6 +14,78 @@ import from .ui.field { Field, FieldLabel, FieldGroup }
 import from .ui.card { Card, CardHeader, CardTitle, CardDescription, CardContent }
 import from .RewardCard { time_left, money }
 import from "qrcode.react" { QRCodeSVG }
+
+"""Photo picker: drag-and-drop or tap to choose; resizes in the browser to a compact JPEG data URL."""
+def:pub PhotoUpload(image: str, onChange: Callable[[str], None]) -> JsxElement {
+    has dragging: bool = False,
+        busy: bool = False;
+
+    def read_file(file: any) {
+        if not file {
+            return;
+        }
+        if not str(file.type).startswith("image/") {
+            toast.error("Choose an image file (JPG, PNG or WebP).");
+            return;
+        }
+        if file.size > 10 * 1024 * 1024 {
+            toast.error("That photo is over 10 MB. Pick a smaller one.");
+            return;
+        }
+        busy = True;
+        reader: any = new(FileReader);
+        reader.onload = lambda (ev: any) {
+            img: any = new(Image);
+            img.onload = lambda {
+                maxw = 1200;
+                scale = min(1.0, maxw / img.width);
+                canvas: any = document.createElement("canvas");
+                canvas.width = int(img.width * scale);
+                canvas.height = int(img.height * scale);
+                canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+                onChange(canvas.toDataURL("image/jpeg", 0.8));
+                busy = False;
+            };
+            img.onerror = lambda { busy = False; toast.error("Could not read that image."); };
+            img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    def on_pick(e: ChangeEvent) {
+        target: any = e.target;
+        read_file(target.files[0]);
+        target.value = "";
+    }
+
+    def on_drop(e: any) {
+        e.preventDefault();
+        dragging = False;
+        read_file(e.dataTransfer.files[0]);
+    }
+
+    return <Field>
+        <FieldLabel htmlFor="reward-photo">{"Food or drink photo"}</FieldLabel>
+        {<div className="relative overflow-hidden rounded-2xl border bg-muted">
+            <img src={image} alt="Reward photo preview" className="aspect-[16/10] w-full object-cover" />
+            <div className="absolute bottom-2 right-2 flex gap-2">
+                <label htmlFor="reward-photo" className="cursor-pointer rounded-lg bg-white/95 pt-1.5 pb-1.5 pl-3 pr-3 text-xs font-semibold text-charcoal shadow">{"Replace"}</label>
+                <button type="button" onClick={lambda { onChange(""); }} className="rounded-lg bg-white/95 pt-1.5 pb-1.5 pl-3 pr-3 text-xs font-semibold text-destructive shadow">{"Remove"}</button>
+            </div>
+        </div> if image else <label
+            htmlFor="reward-photo"
+            onDragOver={lambda (e: any) { e.preventDefault(); dragging = True; }}
+            onDragLeave={lambda { dragging = False; }}
+            onDrop={on_drop}
+            className={"flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed pt-8 pb-8 pl-4 pr-4 text-center transition-colors " + ("border-primary bg-primary/5" if dragging else "border-border bg-muted/40 hover:border-primary/50")}
+        >
+            <span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary"><HugeiconsIcon icon={Upload01Icon} strokeWidth={2} className="size-5" /></span>
+            <span className="text-sm font-semibold">{"Processing photo..." if busy else "Upload a photo"}</span>
+            <span className="text-xs text-muted-foreground">{"Drag and drop or tap to choose · JPG, PNG, WebP up to 10 MB"}</span>
+        </label>}
+        <input id="reward-photo" type="file" accept="image/*" className="hidden" onChange={on_pick} />
+    </Field>;
+}
 
 """Printable in-store QR poster. Scanning it opens /scan/<rid>/<token>, which proves presence."""
 def:pub StoreQrCard(rid: str, name: str, token: str, onRotate: Callable[[], None], rotating: bool = False) -> JsxElement {
@@ -99,6 +171,7 @@ def:pub BusinessDashboard() -> JsxElement {
             toast.success(res.message);
             title = "";
             desc = "";
+            image = "";
         } else {
             toast.error(res.message);
         }
@@ -171,7 +244,7 @@ def:pub BusinessDashboard() -> JsxElement {
                             </Field>
                         </div>
                         <Field><FieldLabel htmlFor="rr">{"Required action"}</FieldLabel><Input id="rr" value={req} onChange={lambda (e: ChangeEvent) { req = e.target.value; }} /></Field>
-                        <Field><FieldLabel htmlFor="ri">{"Food or drink photo URL (optional)"}</FieldLabel><Input id="ri" value={image} placeholder="https://..." onChange={lambda (e: ChangeEvent) { image = e.target.value; }} /></Field>
+                        <PhotoUpload image={image} onChange={lambda (v: str) { image = v; }} />
                         <Button className="h-11 w-full sm:w-fit sm:pl-6 sm:pr-6" disabled={saving} onClick={submit_reward}><HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} />{"Publishing..." if saving else "Publish reward"}</Button>
                     </FieldGroup>
                 </CardContent>

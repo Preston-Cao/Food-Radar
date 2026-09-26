@@ -1,8 +1,8 @@
-import from "@jac/runtime" { Link }
+import from "@jac/runtime" { Link, jacLogout }
 import from "sonner" { toast }
 import from "@hugeicons/react" { HugeiconsIcon }
 import from "@hugeicons/core-free-icons" {
-    Fire02Icon, Award01Icon, Store01Icon, Location01Icon, Share01Icon, LockIcon, Tick02Icon, Restaurant01Icon, ArrowRight01Icon
+    Fire02Icon, Award01Icon, Store01Icon, Location01Icon, Share01Icon, LockIcon, Tick02Icon, Restaurant01Icon, ArrowRight01Icon, Logout01Icon
 }
 import from .ui.button { Button }
 import from .ui.skeleton { Skeleton }
@@ -143,5 +143,15 @@ def:pub ProfileBody(p: ProfileView, onTogglePersonal: Callable[[ProfileView], No
             </div>
             <HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2} className="size-5 transition-transform group-hover:translate-x-1" />
         </Link>
+
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-card pt-4 pb-4 pl-5 pr-5 shadow-sm">
+            <div>
+                <p className="text-sm font-semibold">{"Signed in"}</p>
+                <p className="text-sm text-muted-foreground">{localStorage.getItem("bl_email") or "BiteLoop account"}</p>
+            </div>
+            <Button variant="outline" onClick={lambda { jacLogout(); localStorage.removeItem("bl_email"); window.location.href = "/login"; }}>
+                <HugeiconsIcon icon={Logout01Icon} strokeWidth={2} />{"Sign out"}
+            </Button>
+        </div>
     </div>;
 }

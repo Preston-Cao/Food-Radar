@@ -6,7 +6,8 @@ import from services.biteloop {
 }
 
 import ".styles.global.css";
-import from "@jac/runtime" { Router, Routes, Route, Navigate }
+import from "@jac/runtime" { Router, Routes, Route, Navigate, AuthGuard }
+import from .components.LoginPage { LoginPage }
 import from .components.ui.sonner_toast { Toaster }
 import from .components.BottomNav { BottomNav }
 import from .components.HomeFeed { HomeFeed }
@@ -35,16 +36,19 @@ def:pub app() -> JsxElement {
     return <Router>
         <Toaster position="top-center" richColors={True} />
         <Routes>
-            <Route path="/" element={<AppFrame><HomeFeed /></AppFrame>} />
-            <Route path="/onboarding" element={<OnboardingFlow />} />
-            <Route path="/explore" element={<AppFrame><ExploreMap /></AppFrame>} />
-            <Route path="/restaurant/:id" element={<AppFrame><RestaurantProfile /></AppFrame>} />
-            <Route path="/missions" element={<AppFrame><MissionsBoard /></AppFrame>} />
-            <Route path="/wallet" element={<AppFrame><WalletScreen /></AppFrame>} />
-            <Route path="/profile" element={<AppFrame><ProfileScreen /></AppFrame>} />
-            <Route path="/business" element={<AppFrame><BusinessDashboard /></AppFrame>} />
-            <Route path="/business/display" element={<StoreDisplay />} />
-            <Route path="/scan/:rid/:token" element={<AppFrame><ScanClaim /></AppFrame>} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route element={<AuthGuard redirect="/login" />}>
+                <Route path="/" element={<AppFrame><HomeFeed /></AppFrame>} />
+                <Route path="/onboarding" element={<OnboardingFlow />} />
+                <Route path="/explore" element={<AppFrame><ExploreMap /></AppFrame>} />
+                <Route path="/restaurant/:id" element={<AppFrame><RestaurantProfile /></AppFrame>} />
+                <Route path="/missions" element={<AppFrame><MissionsBoard /></AppFrame>} />
+                <Route path="/wallet" element={<AppFrame><WalletScreen /></AppFrame>} />
+                <Route path="/profile" element={<AppFrame><ProfileScreen /></AppFrame>} />
+                <Route path="/business" element={<AppFrame><BusinessDashboard /></AppFrame>} />
+                <Route path="/business/display" element={<StoreDisplay />} />
+                <Route path="/scan/:rid/:token" element={<AppFrame><ScanClaim /></AppFrame>} />
+            </Route>
             <Route path="*" element={<Navigate to="/" replace={True} />} />
         </Routes>
     </Router>;
