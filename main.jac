@@ -1,6 +1,6 @@
 import from services.biteloop {
     get_feed, get_restaurants, get_restaurant, claim_reward, get_wallet, redeem_claim,
-    get_missions, get_profile, save_preferences, get_dashboard, create_reward, flash_drop,
+    get_missions, get_profile, save_preferences, get_dashboard, create_reward, flash_drop, get_checkin, scan_claim, CheckinView,
     Restaurant, Reward, Claim, Mission, UserProfile, RewardView, RestaurantView,
     RestaurantDetail, FeedView, ClaimView, MissionView, ProfileView, DashboardView, ActionResult
 }
@@ -17,6 +17,7 @@ import from .components.MissionsBoard { MissionsBoard }
 import from .components.WalletScreen { WalletScreen }
 import from .components.ProfileScreen { ProfileScreen }
 import from .components.BusinessDashboard { BusinessDashboard }
+import from .components.ScanClaim { ScanClaim }
 
 def:pub AppFrame(children: any = None) -> JsxElement {
     return <div className="min-h-svh bg-background">
@@ -41,6 +42,7 @@ def:pub app() -> JsxElement {
             <Route path="/wallet" element={<AppFrame><WalletScreen /></AppFrame>} />
             <Route path="/profile" element={<AppFrame><ProfileScreen /></AppFrame>} />
             <Route path="/business" element={<AppFrame><BusinessDashboard /></AppFrame>} />
+            <Route path="/scan/:rid/:token" element={<AppFrame><ScanClaim /></AppFrame>} />
             <Route path="*" element={<Navigate to="/" replace={True} />} />
         </Routes>
     </Router>;

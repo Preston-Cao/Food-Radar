@@ -13,6 +13,32 @@ import from .ui.skeleton { Skeleton }
 import from .ui.field { Field, FieldLabel, FieldGroup }
 import from .ui.card { Card, CardHeader, CardTitle, CardDescription, CardContent }
 import from .RewardCard { time_left, money }
+import from "qrcode.react" { QRCodeSVG }
+
+"""Printable in-store QR poster. Scanning it opens /scan/<rid>/<token>, which proves presence."""
+def:pub StoreQrCard(rid: str, name: str, token: str) -> JsxElement {
+    url = window.location.origin + "/scan/" + rid + "/" + token;
+    return <Card className="shadow-sm print:shadow-none">
+        <CardHeader>
+            <CardTitle className="flex items-center gap-2"><HugeiconsIcon icon={QrCode01Icon} strokeWidth={2} className="size-5 text-primary" />{"In-store QR code"}</CardTitle>
+            <CardDescription>{"Print this and place it at the counter. Customers scan it with their phone camera to check in and claim rewards, so rewards can only be claimed on-site."}</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center gap-4">
+            <div id="store-qr-poster" className="flex w-full flex-col items-center gap-3 rounded-3xl bg-primary pt-6 pb-6 pl-6 pr-6 text-center text-primary-foreground">
+                <p className="text-xs font-bold uppercase tracking-widest">{"BiteLoop"}</p>
+                <p className="text-xl font-bold leading-tight">{"Scan for a free bite at " + name}</p>
+                <div className="rounded-2xl bg-white pt-3 pb-3 pl-3 pr-3 shadow-lg">
+                    <QRCodeSVG value={url} size={180} level="M" fgColor="#1f1a17" />
+                </div>
+                <p className="text-xs text-primary-foreground/85">{"Open your camera and point it at the code"}</p>
+            </div>
+            <div className="flex w-full flex-wrap gap-2">
+                <Button className="flex-1" onClick={lambda { window.print(); }}>{"Print poster"}</Button>
+                <a href={url} target="_blank" rel="noreferrer" className="flex-1"><Button variant="outline" className="w-full">{"Test scan link"}</Button></a>
+            </div>
+        </CardContent>
+    </Card>;
+}
 sv import from ..services.biteloop { get_dashboard, create_reward, flash_drop, DashboardView }
 
 def:pub Metric(label: str, value: str, icon: any) -> JsxElement {
@@ -141,6 +167,7 @@ def:pub BusinessDashboard() -> JsxElement {
             </Card>
 
             <div className="flex flex-col gap-6 lg:col-span-2">
+                {dash and dash.checkin_token and <StoreQrCard rid={dash.restaurant_id} name={dash.restaurant_name} token={dash.checkin_token} />}
                 <Card className="border-2 border-yellow-400/70 shadow-sm">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2"><HugeiconsIcon icon={FlashIcon} strokeWidth={2} className="size-5 text-yellow-500" />{"Flash Drop"}</CardTitle>

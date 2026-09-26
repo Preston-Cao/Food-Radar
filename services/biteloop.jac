@@ -34,6 +34,7 @@ node Restaurant {
         verified: bool = True,
         sample: bool = True,
         owner_id: str = "",
+        checkin_token: str = "",
         created_at: float = 0.0;
 }
 
@@ -251,7 +252,15 @@ obj DashboardView {
         returning_customers: int,
         acquisition_cost: float,
         revenue: float,
+        checkin_token: str,
         rewards: list[RewardView];
+}
+
+obj CheckinView {
+    has valid: bool,
+        message: str,
+        restaurant: RestaurantView | None = None,
+        rewards: list[RewardView] = [];
 }
 
 obj ActionResult {
@@ -288,3 +297,5 @@ def:pub create_reward(
     reward_type: str
 ) -> ActionResult;
 def:pub flash_drop(title: str, quantity: int, minutes: int) -> ActionResult;
+def:pub get_checkin(rid: str, token: str) -> CheckinView;
+def:pub scan_claim(reward_id: str, rid: str, token: str) -> ActionResult;
