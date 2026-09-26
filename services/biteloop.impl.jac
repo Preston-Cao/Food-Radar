@@ -609,7 +609,31 @@ impl get_checkin(rid: str, token: str) -> CheckinView {
     for v in mine {
         v.distance = 0.0;
     }
-    return CheckinView(valid=True, message="Checked in at " + r.name, restaurant=_rest_view(r, center, live), rewards=mine);
+    # One check-in bonus per restaurant per day; counts toward the daily streak.
+    today = time.strftime("%Y-%m-%d");
+    key = rid + "@" + today;
+    bonus = 0;
+    if key not in p.checkins {
+        p.checkins = (p.checkins + [key])[-200:];
+        bonus = 10;
+        p.points += 10;
+        if today not in p.visit_days {
+            p.visit_days = p.visit_days + [today];
+            p.streak += 1;
+            bonus += _bump("explorer3", 1, p);
+        }
+    }
+    return CheckinView(valid=True, message="Checked in at " + r.name, bonus=bonus, restaurant=_rest_view(r, center, live), rewards=mine);
+}
+
+impl rotate_checkin(rid: str) -> ActionResult {
+    _ensure();
+    r = _rest_by_id(rid);
+    if r is None {
+        return ActionResult(ok=False, message="Restaurant not found.");
+    }
+    r.checkin_token = _code(16);
+    return ActionResult(ok=True, message="New QR code issued. Old posters no longer work, so print the new one.");
 }
 
 impl scan_claim(reward_id: str, rid: str, token: str) -> ActionResult {

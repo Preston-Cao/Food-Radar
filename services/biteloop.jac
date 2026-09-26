@@ -111,6 +111,7 @@ node UserProfile {
         discovered: list[str] = [],
         visits: list[str] = [],
         visit_days: list[str] = [],
+        checkins: list[str] = [],
         referral_code: str = "RILEY-7Q2",
         created_at: float = 0.0;
 }
@@ -259,6 +260,7 @@ obj DashboardView {
 obj CheckinView {
     has valid: bool,
         message: str,
+        bonus: int = 0,
         restaurant: RestaurantView | None = None,
         rewards: list[RewardView] = [];
 }
@@ -299,3 +301,4 @@ def:pub create_reward(
 def:pub flash_drop(title: str, quantity: int, minutes: int) -> ActionResult;
 def:pub get_checkin(rid: str, token: str) -> CheckinView;
 def:pub scan_claim(reward_id: str, rid: str, token: str) -> ActionResult;
+def:pub rotate_checkin(rid: str) -> ActionResult;

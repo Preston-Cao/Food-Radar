@@ -1,6 +1,6 @@
 import from services.biteloop {
     get_feed, get_restaurants, get_restaurant, claim_reward, get_wallet, redeem_claim,
-    get_missions, get_profile, save_preferences, get_dashboard, create_reward, flash_drop, get_checkin, scan_claim, CheckinView,
+    get_missions, get_profile, save_preferences, get_dashboard, create_reward, flash_drop, get_checkin, scan_claim, rotate_checkin, CheckinView,
     Restaurant, Reward, Claim, Mission, UserProfile, RewardView, RestaurantView,
     RestaurantDetail, FeedView, ClaimView, MissionView, ProfileView, DashboardView, ActionResult
 }

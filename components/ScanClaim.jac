@@ -20,7 +20,11 @@ def:pub ScanClaim() -> JsxElement {
 
     async def load -> None {
         try {
-            checkin = await get_checkin(rid, token);
+            data = await get_checkin(rid, token);
+            if data.valid and data.bonus > 0 {
+                toast.success("Checked in. +" + str(data.bonus) + " Bite Points");
+            }
+            checkin = data;
         } except Exception {
             checkin = None;
         }

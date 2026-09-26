@@ -16,7 +16,7 @@ import from .RewardCard { time_left, money }
 import from "qrcode.react" { QRCodeSVG }
 
 """Printable in-store QR poster. Scanning it opens /scan/<rid>/<token>, which proves presence."""
-def:pub StoreQrCard(rid: str, name: str, token: str) -> JsxElement {
+def:pub StoreQrCard(rid: str, name: str, token: str, onRotate: Callable[[], None], rotating: bool = False) -> JsxElement {
     url = window.location.origin + "/scan/" + rid + "/" + token;
     return <Card className="shadow-sm print:shadow-none">
         <CardHeader>
@@ -36,10 +36,11 @@ def:pub StoreQrCard(rid: str, name: str, token: str) -> JsxElement {
                 <Button className="flex-1" onClick={lambda { window.print(); }}>{"Print poster"}</Button>
                 <a href={url} target="_blank" rel="noreferrer" className="flex-1"><Button variant="outline" className="w-full">{"Test scan link"}</Button></a>
             </div>
+            <Button variant="ghost" size="sm" className="text-muted-foreground" disabled={rotating} onClick={lambda { onRotate(); }}>{"Issuing new code..." if rotating else "Refresh code (cancels old posters)"}</Button>
         </CardContent>
     </Card>;
 }
-sv import from ..services.biteloop { get_dashboard, create_reward, flash_drop, DashboardView }
+sv import from ..services.biteloop { get_dashboard, create_reward, flash_drop, rotate_checkin, DashboardView }
 
 def:pub Metric(label: str, value: str, icon: any) -> JsxElement {
     return <Card className="shadow-sm transition-shadow hover:shadow-md">
@@ -70,7 +71,16 @@ def:pub BusinessDashboard() -> JsxElement {
         flashTitle: str = "Free drip coffee",
         flashQty: str = "20",
         flashMin: str = "45",
-        dropping: bool = False;
+        dropping: bool = False,
+        rotating: bool = False;
+
+    async def rotate -> None {
+        rotating = True;
+        res = await rotate_checkin(dash.restaurant_id if dash else "ember");
+        if res.ok { toast.success(res.message); } else { toast.error(res.message); }
+        rotating = False;
+        await load();
+    }
 
     async def load -> None {
         try {
@@ -167,7 +177,7 @@ def:pub BusinessDashboard() -> JsxElement {
             </Card>
 
             <div className="flex flex-col gap-6 lg:col-span-2">
-                {dash and dash.checkin_token and <StoreQrCard rid={dash.restaurant_id} name={dash.restaurant_name} token={dash.checkin_token} />}
+                {dash and dash.checkin_token and <StoreQrCard rid={dash.restaurant_id} name={dash.restaurant_name} token={dash.checkin_token} onRotate={rotate} rotating={rotating} />}
                 <Card className="border-2 border-yellow-400/70 shadow-sm">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2"><HugeiconsIcon icon={FlashIcon} strokeWidth={2} className="size-5 text-yellow-500" />{"Flash Drop"}</CardTitle>
