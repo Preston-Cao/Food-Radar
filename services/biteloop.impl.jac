@@ -319,10 +319,12 @@ impl get_map_center() -> list[float] {
     return [round(c[0], 3), round(c[1], 3)];
 }
 
-"""Browser Maps key (restrict it by HTTP referrer in Google Cloud). Empty -> the client falls back to OpenStreetMap."""
+"""Browser Maps key (exposed to clients by design; restrict it by HTTP referrer). GOOGLE_MAPS_API_KEY overrides it."""
+glob DEFAULT_MAPS_KEY: str = "AIzaSyBeExHQY6xB0xW96IpBH5cwgW4Mx4RCTtA";
+
 impl get_maps_config() -> dict {
     return {
-        "api_key": os.environ.get("GOOGLE_MAPS_API_KEY", "").strip(),
+        "api_key": os.environ.get("GOOGLE_MAPS_API_KEY", "").strip() or DEFAULT_MAPS_KEY,
         "map_id": os.environ.get("GOOGLE_MAPS_MAP_ID", "").strip() or "DEMO_MAP_ID"
     };
 }

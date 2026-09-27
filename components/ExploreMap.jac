@@ -8,7 +8,7 @@ import from .ui.button { Button }
 import from .ui.badge { Badge }
 import from .ui.skeleton { Skeleton }
 import from .ui.empty { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent }
-import from .GoogleRestaurantMap { ExploreGoogleMap }
+import from .GoogleRestaurantMap { ExploreGoogleMap, directions_url }
 sv import from ..services.biteloop { get_restaurants, get_map_center, RestaurantView }
 
 glob FILTERS: list[str] = [
@@ -45,6 +45,7 @@ def:pub PinSheet(place: RestaurantView, onView: Callable[[str], None], onClose: 
         </div>
         <div className="flex flex-col gap-1">
             <Button size="sm" onClick={lambda { onView(place.id); }}>{"View"}</Button>
+            <a href={directions_url(place.lat, place.lng)} target="_blank" rel="noreferrer" className="rounded-md bg-muted pt-1 pb-1 pl-2.5 pr-2.5 text-center text-xs font-semibold hover:bg-secondary">{"Directions"}</a>
             <button aria-label="Close" onClick={lambda { onClose(); }} className="self-center text-muted-foreground"><HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} className="size-4" /></button>
         </div>
     </div>;
@@ -103,7 +104,7 @@ def:pub ExploreMap() -> JsxElement {
         {not loading and <div className="grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-5">
             <div className="relative isolate h-[26rem] overflow-hidden rounded-3xl border bg-muted shadow-sm lg:col-span-3 lg:h-[34rem]">
                 <ExploreGoogleMap places={shown} center={center} selected={selected} onSelect={lambda (rid: str) { selected = rid; }} />
-                <div className="pointer-events-none absolute right-3 top-3 z-[1000] flex flex-wrap justify-end gap-1.5 text-[11px] font-semibold">
+                <div className="pointer-events-none absolute left-3 top-3 z-[1000] flex flex-wrap gap-1.5 pr-14 text-[11px] font-semibold">
                     <span className="rounded-full bg-card/95 pt-1 pb-1 pl-2.5 pr-2.5 shadow-sm">{str(len(shown)) + " spots"}</span>
                     <span className="rounded-full bg-yellow-400 pt-1 pb-1 pl-2.5 pr-2.5 text-charcoal shadow-sm">{"Flash Drop"}</span>
                     <span className="rounded-full bg-sky-500/90 pt-1 pb-1 pl-2.5 pr-2.5 text-white shadow-sm">{"Your area (approx.)"}</span>
