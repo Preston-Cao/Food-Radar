@@ -319,6 +319,14 @@ impl get_map_center() -> list[float] {
     return [round(c[0], 3), round(c[1], 3)];
 }
 
+"""Browser Maps key (restrict it by HTTP referrer in Google Cloud). Empty -> the client falls back to OpenStreetMap."""
+impl get_maps_config() -> dict {
+    return {
+        "api_key": os.environ.get("GOOGLE_MAPS_API_KEY", "").strip(),
+        "map_id": os.environ.get("GOOGLE_MAPS_MAP_ID", "").strip() or "DEMO_MAP_ID"
+    };
+}
+
 impl get_restaurant(rid: str) -> RestaurantDetail | None {
     p = _ensure();
     r = _rest_by_id(rid);

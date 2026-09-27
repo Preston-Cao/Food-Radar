@@ -8,7 +8,7 @@ import from .ui.button { Button }
 import from .ui.badge { Badge }
 import from .ui.skeleton { Skeleton }
 import from .ui.empty { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent }
-import from .RestaurantMap { RestaurantPinMap }
+import from .GoogleRestaurantMap { ExploreGoogleMap }
 sv import from ..services.biteloop { get_restaurants, get_map_center, RestaurantView }
 
 glob FILTERS: list[str] = [
@@ -102,7 +102,7 @@ def:pub ExploreMap() -> JsxElement {
 
         {not loading and <div className="grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-5">
             <div className="relative isolate h-[26rem] overflow-hidden rounded-3xl border bg-muted shadow-sm lg:col-span-3 lg:h-[34rem]">
-                <RestaurantPinMap places={shown} center={center} selected={selected} onSelect={lambda (rid: str) { selected = rid; }} />
+                <ExploreGoogleMap places={shown} center={center} selected={selected} onSelect={lambda (rid: str) { selected = rid; }} />
                 <div className="pointer-events-none absolute right-3 top-3 z-[1000] flex flex-wrap justify-end gap-1.5 text-[11px] font-semibold">
                     <span className="rounded-full bg-card/95 pt-1 pb-1 pl-2.5 pr-2.5 shadow-sm">{str(len(shown)) + " spots"}</span>
                     <span className="rounded-full bg-yellow-400 pt-1 pb-1 pl-2.5 pr-2.5 text-charcoal shadow-sm">{"Flash Drop"}</span>

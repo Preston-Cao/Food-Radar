@@ -8,6 +8,7 @@ and every seeded business is flagged f"sample=True".
 import time;
 import math;
 import random;
+import os;
 
 # ---------------------------------------------------------------- graph nodes
 
@@ -281,6 +282,7 @@ obj ActionResult {
 def:pub get_feed(location: str = "", radius: float = 0.0) -> FeedView;
 def:pub get_restaurants(location: str = "") -> list[RestaurantView];
 def:pub get_map_center() -> list[float];
+def:pub get_maps_config() -> dict;
 def:pub get_restaurant(rid: str) -> RestaurantDetail | None;
 def:pub claim_reward(reward_id: str, code: str) -> ActionResult;
 def:pub get_reward(reward_id: str) -> RewardView | None;

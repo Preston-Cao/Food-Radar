@@ -11,7 +11,7 @@ import from .ui.skeleton { Skeleton }
 import from .ui.card { Card, CardHeader, CardTitle, CardContent }
 import from .ui.empty { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription }
 import from .RewardCard { RewardCard }
-import from .RestaurantMap { LocationPreview }
+import from .GoogleRestaurantMap { GoogleLocationPreview }
 sv import from ..services.biteloop { get_restaurant, RestaurantDetail }
 
 def:pub RestaurantProfile() -> JsxElement {
@@ -143,7 +143,7 @@ def:pub ProfileBody(detail: RestaurantDetail, claimingId: str, onClaim: Callable
                     <CardHeader><CardTitle>{"About"}</CardTitle></CardHeader>
                     <CardContent className="flex flex-col gap-3 text-sm">
                         <p className="text-muted-foreground">{r.description}</p>
-                        {r.lat != 0.0 and <LocationPreview place={r} />}
+                        {r.lat != 0.0 and <GoogleLocationPreview place={r} />}
                         <InfoRow icon={Location01Icon} text={r.address} />
                         <InfoRow icon={Clock01Icon} text={detail.hours} />
                         <InfoRow icon={Call02Icon} text={detail.phone} />
